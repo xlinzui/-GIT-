@@ -1,0 +1,242 @@
+#define _USE_MATH_DEFINES
+#include <iostream>
+#include <iomanip>
+#include <limits>
+#include <cmath>
+
+// 抽象图形基类，定义统一接口（体现类的继承与多态基础）
+class Shape {
+public:
+    // 纯虚函数：计算面积（子类必须实现具体逻辑）
+    virtual double calculateArea() const = 0;
+    // 纯虚函数：获取用户输入的尺寸（含单位适配）
+    virtual void inputSize(int unitChoice) = 0;
+    // 纯虚函数：输出图形信息与计算结果
+    virtual void printResult() const = 0;
+
+    // 静态工具函数：英寸转厘米（1英寸 = 2.54厘米，统一单位转换逻辑）
+    static double inchesToCentimeters(double inches) {
+        return inches * 2.54;
+    }
+
+    // 虚析构函数：确保子类对象销毁时调用正确的析构逻辑
+    virtual ~Shape() = default;
+};
+
+// 正方形子类（继承Shape）
+class Square : public Shape {
+private:
+    double side; // 边长（统一存储为厘米）
+
+public:
+    // 实现输入边长逻辑（根据单位选择转换）
+    void inputSize(int unitChoice) override {
+        double input;
+        // 输入校验：确保输入为正数
+        while (true) {
+            std::cout << "请输入正方形的边长：";
+            if (std::cin >> input && input > 0) {
+                // 单位转换：英寸→厘米，厘米直接赋值
+                side = (unitChoice == 2) ? inchesToCentimeters(input) : input;
+                break;
+            }
+            // 处理无效输入（清空错误状态+忽略缓冲区残留）
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "输入无效！请重新输入一个正数。\n";
+        }
+    }
+
+    // 实现正方形面积计算（边长×边长）
+    double calculateArea() const override {
+        return side * side;
+    }
+
+    // 实现结果输出（统一保留3位小数）
+    void printResult() const override {
+        std::cout << "图形类型：正方形\n";
+        std::cout << "边长：" << std::fixed << std::setprecision(3) << side << " 厘米\n";
+        std::cout << "面积：" << std::fixed << std::setprecision(3) << calculateArea() << " 平方厘米\n";
+    }
+};
+
+// 长方形子类（继承Shape）
+class Rectangle : public Shape {
+private:
+    double length, width; // 长、宽（统一存储为厘米）
+
+public:
+    // 实现输入长和宽逻辑
+    void inputSize(int unitChoice) override {
+        // 输入长度
+        while (true) {
+            std::cout << "请输入长方形的长度：";
+            if (std::cin >> length && length > 0) break;
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "输入无效！请重新输入一个正数。\n";
+        }
+        // 输入宽度
+        while (true) {
+            std::cout << "请输入长方形的宽度：";
+            if (std::cin >> width && width > 0) break;
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "输入无效！请重新输入一个正数。\n";
+        }
+        // 单位转换
+        if (unitChoice == 2) {
+            length = inchesToCentimeters(length);
+            width = inchesToCentimeters(width);
+        }
+    }
+
+    // 实现长方形面积计算（长×宽）
+    double calculateArea() const override {
+        return length * width;
+    }
+
+    // 实现结果输出
+    void printResult() const override {
+        std::cout << "图形类型：长方形\n";
+        std::cout << "长×宽：" << std::fixed << std::setprecision(3) << length 
+                  << " × " << width << " 厘米\n";
+        std::cout << "面积：" << std::fixed << std::setprecision(3) << calculateArea() << " 平方厘米\n";
+    }
+};
+
+// 三角形子类（继承Shape）
+class Triangle : public Shape {
+private:
+    double base, height; // 底、高（统一存储为厘米）
+
+public:
+    // 实现输入底和高逻辑
+    void inputSize(int unitChoice) override {
+        // 输入底
+        while (true) {
+            std::cout << "请输入三角形的底：";
+            if (std::cin >> base && base > 0) break;
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "输入无效！请重新输入一个正数。\n";
+        }
+        // 输入高
+        while (true) {
+            std::cout << "请输入三角形的高：";
+            if (std::cin >> height && height > 0) break;
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "输入无效！请重新输入一个正数。\n";
+        }
+        // 单位转换
+        if (unitChoice == 2) {
+            base = inchesToCentimeters(base);
+            height = inchesToCentimeters(height);
+        }
+    }
+
+    // 实现三角形面积计算（底×高÷2）
+    double calculateArea() const override {
+        return (base * height) / 2.0;
+    }
+
+    // 实现结果输出
+    void printResult() const override {
+        std::cout << "图形类型：三角形\n";
+        std::cout << "底：" << std::fixed << std::setprecision(3) << base 
+                  << " 厘米，高：" << height << " 厘米\n";
+        std::cout << "面积：" << std::fixed << std::setprecision(3) << calculateArea() << " 平方厘米\n";
+    }
+};
+
+// 圆形子类（继承Shape）
+class Circle : public Shape {
+private:
+    double diameter; // 直径（统一存储为厘米）
+
+public:
+    // 实现输入直径逻辑
+    void inputSize(int unitChoice) override {
+        double input;
+        while (true) {
+            std::cout << "请输入圆形的直径：";
+            if (std::cin >> input && input > 0) {
+                diameter = (unitChoice == 2) ? inchesToCentimeters(input) : input;
+                break;
+            }
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "输入无效！请重新输入一个正数。\n";
+        }
+    }
+
+    // 实现圆形面积计算（π×(直径÷2)²）
+    double calculateArea() const override {
+        double radius = diameter / 2.0;
+        return M_PI * radius * radius;
+    }
+
+    // 实现结果输出
+    void printResult() const override {
+        std::cout << "图形类型：圆形\n";
+        std::cout << "直径：" << std::fixed << std::setprecision(3) << diameter << " 厘米\n";
+        std::cout << "面积：" << std::fixed << std::setprecision(3) << calculateArea() << " 平方厘米\n";
+    }
+};
+
+// 工具函数：获取用户有效选择（通用范围校验）
+int getValidChoice(const std::string& prompt, int minVal, int maxVal) {
+    int choice;
+    while (true) {
+        std::cout << prompt;
+        if (std::cin >> choice && choice >= minVal && choice <= maxVal) {
+            break;
+        }
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "输入无效！请输入" << minVal << "-" << maxVal << "之间的整数。\n";
+    }
+    return choice;
+}
+
+int main() {
+    // 全局设置输出精度为3位小数
+    std::cout << std::fixed << std::setprecision(3);
+
+    // 1. 选择图形类型
+    int shapeType = getValidChoice(
+        "\n===== 图形面积计算器 =====\n"
+        "1. 正方形  2. 长方形  3. 三角形  4. 圆形\n"
+        "请选择要计算的图形（1-4）：",
+        1, 4
+    );
+
+    // 2. 选择输入单位
+    int unitType = getValidChoice(
+        "\n请选择输入单位：\n"
+        "1. 厘米  2. 英寸\n"
+        "请选择单位类型（1-2）：",
+        1, 2
+    );
+
+    // 3. 多态创建对应图形对象
+    Shape* shape = nullptr;
+    switch (shapeType) {
+        case 1: shape = new Square();    break;
+        case 2: shape = new Rectangle(); break;
+        case 3: shape = new Triangle();  break;
+        case 4: shape = new Circle();    break;
+    }
+
+    // 4. 执行输入、计算、输出逻辑
+    if (shape != nullptr) {
+        std::cout << "\n"; // 换行优化输出格式
+        shape->inputSize(unitType);
+        std::cout << "\n===== 计算结果 =====\n";
+        shape->printResult();
+        delete shape; // 释放动态内存，避免内存泄漏
+    }
+
+    return 0;
+}
